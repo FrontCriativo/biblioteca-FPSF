@@ -105,8 +105,13 @@
           <select id="novo-materia" name="materia_slug" required></select>
         </div>
         <div class="field">
-          <label for="novo-capa">Arquivo da capa (em assets/)</label>
-          <input id="novo-capa" name="capa" placeholder="ex.: vidasSecas.jpg">
+          <label for="novo-capa-arquivo">Capa do livro</label>
+          <label class="dropzone" data-dropzone>
+            <input id="novo-capa-arquivo" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+            <img class="dropzone__preview" alt="" hidden>
+            <span class="dropzone__texto">Arraste a imagem da capa aqui ou <u>clique para escolher</u></span>
+          </label>
+          <input type="hidden" name="capa" data-capa-nome>
         </div>
       </div>
       <div class="field-row">

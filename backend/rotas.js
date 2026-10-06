@@ -2,8 +2,19 @@ import {
   criarHashSenha, conferirSenha, abrirSessao, encerrarSessao,
   usuarioDaSessao, lerCookie, cabecalhoCookieSessao, cookieSessaoExpirado,
 } from './auth.js';
+import { existsSync, writeFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { db } from './db/index.js';
 import * as repo from './repositorio.js';
+
+const PASTA_ASSETS = fileURLToPath(new URL('../frontend/assets/', import.meta.url));
+
+// Assinaturas (magic bytes) das imagens aceitas como capa.
+const FORMATOS_CAPA = [
+  { ext: '.jpg', confere: (b) => b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff },
+  { ext: '.png', confere: (b) => b.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) },
+  { ext: '.webp', confere: (b) => b.toString('ascii', 0, 4) === 'RIFF' && b.toString('ascii', 8, 12) === 'WEBP' },
+];
 
 class ErroHttp extends Error {
   constructor(status, mensagem) {
@@ -135,6 +146,21 @@ const rotas = {
     const quantidade = inteiroPositivo(corpo.quantidade, 'quantidade', 1);
     repo.adicionarExemplares(inteiroPositivo(params.id, 'id'), quantidade);
     return { corpo: { ok: true, adicionados: quantidade } };
+  },
+
+  'POST /api/admin/capas': (req, { corpo }) => {
+    exigirAdmin(req);
+    const bytes = Buffer.from(campoObrigatorio(corpo, 'dados'), 'base64');
+    const formato = FORMATOS_CAPA.find((f) => f.confere(bytes));
+    if (!formato) throw new ErroHttp(400, 'Envie uma imagem JPG, PNG ou WEBP.');
+
+    // O nome vem do arquivo original, limpo; se já existir, ganha um sufixo numérico.
+    const base = gerarSlug(String(corpo.nome ?? '').replace(/\.[^.]*$/, '')) || 'capa';
+    let arquivo = `${base}${formato.ext}`;
+    for (let i = 2; existsSync(PASTA_ASSETS + arquivo); i++) arquivo = `${base}-${i}${formato.ext}`;
+
+    writeFileSync(PASTA_ASSETS + arquivo, bytes);
+    return { corpo: { arquivo }, status: 201 };
   },
 
   'GET /api/reservas': (req) => {

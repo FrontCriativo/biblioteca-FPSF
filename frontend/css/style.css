@@ -163,6 +163,8 @@ button, input, textarea{
   background: rgba(255,255,255,.08);
   border: none;
   cursor: pointer;
+  margin-bottom: 0;
+  font-weight: 500;
 }
 .icon-btn img{ width: 18px; height: 18px; }
 .icon-btn span{ font-size: 17px; line-height: 1; }
@@ -178,6 +180,8 @@ button, input, textarea{
   border-radius: 999px;
   border: 1.5px solid transparent;
   cursor: pointer;
+  margin-bottom: 0;
+  font-weight: 500;
   transition: transform .12s ease, background .15s ease, border-color .15s ease, color .15s ease;
 }
 .btn:active{ transform: translateY(1px); }
@@ -305,6 +309,8 @@ button, input, textarea{
   padding: 12px 24px;
   border-radius: 999px;
   cursor: pointer;
+  margin-bottom: 0;
+  font-weight: 500;
 }
 .search-form button:hover{ background: var(--lilac-deep); }
 
@@ -545,6 +551,8 @@ button, input, textarea{
   font-weight: 700;
   color: var(--heading);
   cursor: pointer;
+  margin-bottom: 0;
+  font-weight: 500;
 }
 .chip img{ width: 15px; height: 15px; }
 .chip.is-active, .chip:hover{
@@ -792,7 +800,53 @@ button, input, textarea{
   background: #fff;
 }
 .field-row{ display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+
+.field .dropzone{
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 46px;
+  padding: 12px 14px;
+  border: 1.5px dashed var(--line);
+  border-radius: var(--radius-s);
+  background: var(--paper);
+  color: var(--ink-soft);
+  font-size: 14px;
+  cursor: pointer;
+  margin-bottom: 0;
+  font-weight: 500;
+  transition: border-color .15s, background .15s;
+}
+.dropzone:hover, .dropzone.is-arrastando{
+  border-color: var(--lilac);
+  background: var(--lilac-tint);
+}
+.dropzone.is-enviando{ opacity: .6; pointer-events: none; }
+.dropzone__preview{
+  width: 40px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.dropzone__texto{ overflow-wrap: anywhere; }
 .field textarea{ resize: vertical; min-height: 130px; }
+
+/* Campos de digitação no modo escuro: fundo preto e texto branco, inclusive em foco. */
+:root[data-tema="escuro"]{ color-scheme: dark; }
+:root[data-tema="escuro"] :is(.field input, .field textarea, .field select, .admin-filtro select),
+:root[data-tema="escuro"] :is(.field input, .field textarea, .field select, .admin-filtro select):focus{
+  background: #000;
+  color: #fff;
+}
+:root[data-tema="escuro"] .search-form{ background: #000; }
+:root[data-tema="escuro"] .search-form input{ color: #fff; }
+:root[data-tema="escuro"] :is(input, textarea)::placeholder{ color: #8A8DA6; }
+/* O preenchimento automático do Chrome pinta o campo de claro; o inset devolve o preto. */
+:root[data-tema="escuro"] input:-webkit-autofill{
+  -webkit-text-fill-color: #fff;
+  box-shadow: 0 0 0 100px #000 inset;
+}
 
 @media (max-width: 900px){
   .contact-grid{ grid-template-columns: 1fr; }
@@ -861,6 +915,8 @@ button, input, textarea{
   border: none;
   background: none;
   cursor: pointer;
+  margin-bottom: 0;
+  font-weight: 500;
   width: 30px; height: 30px;
   display: flex; align-items: center; justify-content: center;
 }
@@ -1120,6 +1176,8 @@ button, input, textarea{
   font-weight: 700;
   color: var(--ink-soft);
   cursor: pointer;
+  margin-bottom: 0;
+  font-weight: 500;
 }
 .admin-tab:hover{ color: var(--heading); }
 .admin-tab.is-active{ color: var(--heading); border-color: var(--lilac); }
@@ -1211,6 +1269,8 @@ button, input, textarea{
   padding: 7px 13px;
   border-radius: 999px;
   cursor: pointer;
+  margin-bottom: 0;
+  font-weight: 500;
   white-space: nowrap;
 }
 .mini-btn:hover{ border-color: var(--lilac); background: var(--lilac-tint); }

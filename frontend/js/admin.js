@@ -167,15 +167,85 @@ async function montarFormularioLivro() {
     .map((m) => `<option value="${escaparHtml(m.slug)}">${escaparHtml(m.nome)}</option>`)
     .join('');
 
+  const capa = montarDropzoneCapa();
+
   document.querySelector('[data-form-livro]').addEventListener('submit', async (evento) => {
     evento.preventDefault();
     const form = evento.target;
-    const dados = Object.fromEntries(new FormData(form));
-    const enviado = await comFeedback(() => api.criarLivro(dados), 'Livro adicionado ao acervo.');
+    const botao = form.querySelector('[type="submit"]');
+    botao.disabled = true;
+    const enviado = await comFeedback(async () => {
+      // A imagem só sobe no envio, para não deixar arquivos órfãos em assets/.
+      if (capa.arquivo() && !form.querySelector('[data-capa-nome]').value) {
+        const { arquivo } = await api.enviarCapa(capa.arquivo().name, await lerBase64(capa.arquivo()));
+        form.querySelector('[data-capa-nome]').value = arquivo;
+      }
+      await api.criarLivro(Object.fromEntries(new FormData(form)));
+    }, 'Livro adicionado ao acervo.');
+    botao.disabled = false;
     if (enviado) {
       form.reset();
+      capa.limpar();
       recarregarTudo();
     }
+  });
+}
+
+const TIPOS_CAPA = ['image/png', 'image/jpeg', 'image/webp'];
+const TAMANHO_MAX_CAPA = 5 * 1024 * 1024;
+
+function montarDropzoneCapa() {
+  const zona = document.querySelector('[data-dropzone]');
+  const entrada = zona.querySelector('input[type="file"]');
+  const preview = zona.querySelector('.dropzone__preview');
+  const texto = zona.querySelector('.dropzone__texto');
+  const textoInicial = texto.innerHTML;
+  const nomeSalvo = document.querySelector('[data-capa-nome]');
+  let escolhido = null;
+
+  function escolher(arquivo) {
+    if (!arquivo) return;
+    if (!TIPOS_CAPA.includes(arquivo.type)) return aviso('A capa deve ser uma imagem JPG, PNG ou WEBP.', true);
+    if (arquivo.size > TAMANHO_MAX_CAPA) return aviso('A imagem da capa deve ter no máximo 5 MB.', true);
+    escolhido = arquivo;
+    nomeSalvo.value = '';
+    URL.revokeObjectURL(preview.src);
+    preview.src = URL.createObjectURL(arquivo);
+    preview.hidden = false;
+    texto.textContent = `${arquivo.name} — clique ou arraste outra para trocar`;
+  }
+
+  entrada.addEventListener('change', () => escolher(entrada.files[0]));
+  zona.addEventListener('dragover', (evento) => {
+    evento.preventDefault();
+    zona.classList.add('is-arrastando');
+  });
+  zona.addEventListener('dragleave', () => zona.classList.remove('is-arrastando'));
+  zona.addEventListener('drop', (evento) => {
+    evento.preventDefault();
+    zona.classList.remove('is-arrastando');
+    escolher(evento.dataTransfer.files[0]);
+  });
+
+  return {
+    arquivo: () => escolhido,
+    limpar() {
+      escolhido = null;
+      entrada.value = '';
+      URL.revokeObjectURL(preview.src);
+      preview.removeAttribute('src');
+      preview.hidden = true;
+      texto.innerHTML = textoInicial;
+    },
+  };
+}
+
+function lerBase64(arquivo) {
+  return new Promise((resolver, rejeitar) => {
+    const leitor = new FileReader();
+    leitor.onload = () => resolver(leitor.result.split(',')[1]);
+    leitor.onerror = () => rejeitar(new Error('Não foi possível ler a imagem.'));
+    leitor.readAsDataURL(arquivo);
   });
 }
 

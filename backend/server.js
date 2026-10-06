@@ -8,6 +8,8 @@ import { expirarReservasVencidas } from './repositorio.js';
 const PORTA = Number(process.env.PORT) || 3000;
 const RAIZ_FRONT = fileURLToPath(new URL('../frontend/', import.meta.url));
 const LIMITE_CORPO = 1_000_000;
+// A capa chega em base64 (~33% maior que o arquivo): cabe uma imagem de até ~6 MB.
+const LIMITE_CORPO_UPLOAD = 8_000_000;
 
 const TIPOS = {
   '.html': 'text/html; charset=utf-8',
@@ -17,6 +19,7 @@ const TIPOS = {
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp',
   '.svg': 'image/svg+xml',
   '.ico': 'image/x-icon',
 };
@@ -26,12 +29,12 @@ function responderJson(res, status, dados, cabecalhos = {}) {
   res.end(JSON.stringify(dados));
 }
 
-async function lerCorpo(req) {
+async function lerCorpo(req, limite = LIMITE_CORPO) {
   const partes = [];
   let tamanho = 0;
   for await (const pedaco of req) {
     tamanho += pedaco.length;
-    if (tamanho > LIMITE_CORPO) throw new ErroHttp(413, 'Corpo da requisição grande demais.');
+    if (tamanho > limite) throw new ErroHttp(413, 'Corpo da requisição grande demais.');
     partes.push(pedaco);
   }
   if (!partes.length) return {};
@@ -82,7 +85,8 @@ const servidor = createServer(async (req, res) => {
 
   try {
     expirarReservasVencidas();
-    const corpo = req.method === 'GET' || req.method === 'DELETE' ? {} : await lerCorpo(req);
+    const limite = url.pathname === '/api/admin/capas' ? LIMITE_CORPO_UPLOAD : LIMITE_CORPO;
+    const corpo = req.method === 'GET' || req.method === 'DELETE' ? {} : await lerCorpo(req, limite);
     const resultado = rota.handler(req, { corpo, params: rota.params, query: url.searchParams });
     responderJson(res, resultado.status ?? 200, resultado.corpo, resultado.cabecalhos);
   } catch (erro) {

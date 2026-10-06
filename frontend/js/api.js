@@ -47,6 +47,7 @@ export const api = {
   },
   marcarRetirada: (id) => pedir(`/admin/reservas/${id}/retirar`, { metodo: 'POST' }),
   marcarDevolvida: (id) => pedir(`/admin/reservas/${id}/devolver`, { metodo: 'POST' }),
+  enviarCapa: (nome, dados) => pedir('/admin/capas', { metodo: 'POST', corpo: { nome, dados } }),
   usuarios: () => pedir('/admin/usuarios'),
   criarUsuario: (dados) => pedir('/admin/usuarios', { metodo: 'POST', corpo: dados }),
 };
