@@ -99,32 +99,6 @@ button, input, textarea{
 }
 
 /* -------------------------------------------------
-   Top bar (aviso da escola)
-   ------------------------------------------------- */
-.top-strip{
-  background: var(--navy-deep);
-  color: #C9CDEC;
-  font-size: 13px;
-  padding: 7px 0;
-}
-.top-strip .container{
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-}
-.top-strip__contact{
-  display: flex;
-  gap: 20px;
-}
-.top-strip__contact span{
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.top-strip__contact img{ width: 13px; height: 13px; opacity: .85; }
-
-/* -------------------------------------------------
    Navbar
    ------------------------------------------------- */
 .navbar{
@@ -150,22 +124,6 @@ button, input, textarea{
   width: 44px;
   height: 44px;
   border-radius: 50%;
-}
-.brand__text{
-  display: flex;
-  flex-direction: column;
-  line-height: 1.15;
-}
-.brand__text strong{
-  font-family: var(--font-display);
-  color: #fff;
-  font-size: 17px;
-  font-weight: 600;
-}
-.brand__text span{
-  color: #A9AEE0;
-  font-size: 11.5px;
-  letter-spacing: .02em;
 }
 
 .nav-links{
@@ -266,7 +224,6 @@ button, input, textarea{
   }
   .nav-toggle span::before{ position: absolute; top: -7px; }
   .nav-toggle span::after{ position: absolute; top: 7px; }
-  .top-strip .container{ flex-direction: column; gap: 4px; padding-top: 4px; padding-bottom: 4px;}
 }
 
 /* =========================================================

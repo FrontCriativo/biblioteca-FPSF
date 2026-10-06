@@ -140,11 +140,28 @@ export async function montarSessaoNavbar() {
 
   entrar?.style.setProperty('display', 'none');
 
+  const ehAdmin = usuario.papel === 'admin';
+  const links = document.querySelector('.nav-links');
+
+  // "Minhas reservas" fica no menu central. Admin: tira "Início" e "Fale conosco" e ganha também "Admin".
+  if (links) {
+    if (ehAdmin) {
+      links.querySelectorAll('a[href="index.html"], a[href="contato.html"]').forEach((a) => a.closest('li')?.remove());
+    }
+    const paginaAtual = location.pathname.split('/').pop();
+    const itens = [['minhas-reservas.html', 'Minhas reservas']];
+    if (ehAdmin) itens.push(['admin.html', 'Admin']);
+    itens.forEach(([href, texto]) => {
+      if (links.querySelector(`a[href="${href}"]`)) return;
+      const li = document.createElement('li');
+      li.innerHTML = `<a href="${href}"${paginaAtual === href ? ' class="active"' : ''}>${texto}</a>`;
+      links.appendChild(li);
+    });
+  }
+
   const menu = document.createElement('div');
   menu.className = 'nav-user';
   menu.innerHTML = `
-    <a class="nav-user__link" href="minhas-reservas.html">Minhas reservas</a>
-    ${usuario.papel === 'admin' ? '<a class="nav-user__link" href="admin.html">Admin</a>' : ''}
     <span class="nav-user__nome">${escaparHtml(usuario.nome.split(' ')[0])}</span>
     <button class="btn btn--ghost-light" type="button" data-sair>Sair</button>
   `;
